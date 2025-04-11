@@ -1170,11 +1170,13 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rv1106g-uvc-demo-v10-spi-nor.dtb \
 	rv1108-elgin-r1.dtb \
 	rv1108-evb.dtb \
+	rv1109.dtb \
 	rv1126-evb-ddr3-v10.dtb \
 	rv1126-evb-ddr3-v12.dtb \
 	rv1126-evb-ddr3-v12-spi-nand.dtb \
 	rv1126-evb-ddr3-v12-spi-nor.dtb \
 	rv1126-evb-ddr3-v13.dtb \
+	rv1126-ihost.dtb \
 	rk3036-evb.dtb \
 	rk3036-evb1-ddr3-v10.dtb \
 	rk3036-kylin.dtb \
