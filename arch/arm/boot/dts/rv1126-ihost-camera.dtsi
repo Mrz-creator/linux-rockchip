@@ -17,8 +17,3 @@
 &os04a10 {
     /delete-property/ reset-gpios;
 };
-
-/delete-node/ &imx415;
-/delete-node/ &imx335;
-/delete-node/ &mipi_in_ucam2;
-/delete-node/ &mipi_in_ucam3;
