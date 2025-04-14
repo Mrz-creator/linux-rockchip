@@ -1170,7 +1170,6 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rv1106g-uvc-demo-v10-spi-nor.dtb \
 	rv1108-elgin-r1.dtb \
 	rv1108-evb.dtb \
-	rv1109-ihost.dtb \
 	rv1126-evb-ddr3-v10.dtb \
 	rv1126-evb-ddr3-v12.dtb \
 	rv1126-evb-ddr3-v12-spi-nand.dtb \
