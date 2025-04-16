@@ -2,6 +2,10 @@
     status = "disabled";
 };
 
+&mipi_dphy {
+	status = "disabled";
+};
+
 &vcc5v0_host {
 	compatible = "regulator-fixed";
 	enable-active-high;
