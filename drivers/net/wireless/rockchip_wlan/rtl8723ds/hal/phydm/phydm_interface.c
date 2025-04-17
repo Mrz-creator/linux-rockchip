@@ -436,44 +436,6 @@ void odm_move_memory(struct dm_struct *dm, void *dest, void *src, u32 length)
 #endif
 }
 
-u16 odm_convert_to_le16(u16 value)
-{
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	return cpu_to_le16(value);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE) && defined(DM_ODM_CE_MAC80211)
-	return cpu_to_le16(value);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE) && defined(DM_ODM_CE_MAC80211_V2)
-	return cpu_to_le16(value);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
-	return cpu_to_le16(value);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	return value;
-#elif (DM_ODM_SUPPORT_TYPE & ODM_IOT)
-	return cpu_to_le16(value);
-#else
-	return value;
-#endif
-}
-
-u32 odm_convert_to_le32(u32 value)
-{
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	return cpu_to_le32(value);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE) && defined(DM_ODM_CE_MAC80211)
-	return cpu_to_le32(value);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE) && defined(DM_ODM_CE_MAC80211_V2)
-	return cpu_to_le32(value);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
-	return cpu_to_le32(value);
-#elif (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-	return value;
-#elif (DM_ODM_SUPPORT_TYPE & ODM_IOT)
-	return cpu_to_le32(value);
-#else
-	return value;
-#endif
-}
-
 void odm_memory_set(struct dm_struct *dm, void *pbuf, s8 value, u32 length)
 {
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
@@ -756,7 +718,7 @@ void odm_initialize_timer(struct dm_struct *dm, struct phydm_timer_list *timer,
 #elif (DM_ODM_SUPPORT_TYPE & ODM_IOT)
 	struct _ADAPTER *adapter = dm->adapter;
 
-	rtw_init_timer(timer, NULL, (TIMER_FUN)call_back_func, dm, NULL);
+	rtw_init_timer(timer, adapter->pnetdev, (TIMER_FUN)call_back_func, dm, NULL);
 #endif
 }
 
@@ -1200,7 +1162,8 @@ void odm_set_tx_power_index_by_rate_section(struct dm_struct *dm,
 	phy_set_tx_power_index_by_rate_section(dm->adapter, path, ch, section);
 #elif (DM_ODM_SUPPORT_TYPE & ODM_IOT)
 	void *adapter = dm->adapter;
-	wifi_hal_phy_set_txpower_index_byrate_section(adapter, path, ch, section);
+
+	PHY_SetTxPowerIndexByRateSection(adapter, path, ch, section);
 #endif
 }
 
@@ -1223,7 +1186,8 @@ u8 odm_get_tx_power_index(struct dm_struct *dm, enum rf_path path, u8 rate,
 	return phy_get_tx_power_index(dm->adapter, path, rate, bw, ch);
 #elif (DM_ODM_SUPPORT_TYPE & ODM_IOT)
 	void *adapter = dm->adapter;
-	return wifi_hal_phy_get_txpower_index(dm->adapter, path, rate, bw, ch);
+
+	return PHY_GetTxPowerIndex(dm->adapter, path, rate, bw, ch);
 #endif
 }
 
@@ -1232,12 +1196,8 @@ u8 odm_efuse_one_byte_read(struct dm_struct *dm, u16 addr, u8 *data,
 {
 #if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
 	void *adapter = dm->adapter;
-#if RTL8822E_SUPPORT
-	if (dm->support_ic_type == ODM_RTL8822E)
-		return HAL_MAC_read_phy_efuse(&GET_HAL_MAC_INFO((PADAPTER)adapter), (u32)addr, 1, data);
-	else
-#endif
-		return (u8)EFUSE_OneByteRead(adapter, addr, data, b_pseu_do_test);
+
+	return (u8)EFUSE_OneByteRead(adapter, addr, data, b_pseu_do_test);
 #elif (DM_ODM_SUPPORT_TYPE & ODM_CE) && defined(DM_ODM_CE_MAC80211)
 	void *adapter = dm->adapter;
 
@@ -1251,7 +1211,7 @@ u8 odm_efuse_one_byte_read(struct dm_struct *dm, u16 addr, u8 *data,
 #elif (DM_ODM_SUPPORT_TYPE & ODM_IOT)
 	void *adapter = dm->adapter;
 
-	return rtw_config_map_read(adapter, addr, 1,data, 1);
+	return (u8)efuse_OneByteRead(adapter, addr, data, b_pseu_do_test);
 #endif
 }
 
@@ -1271,7 +1231,8 @@ void odm_efuse_logical_map_read(struct dm_struct *dm, u8 type, u16 offset,
 	efuse_logical_map_read(dm->adapter, type, offset, data);
 #elif (DM_ODM_SUPPORT_TYPE & ODM_IOT)
 	void *adapter = dm->adapter;
-	rtw_config_map_read(adapter, offset, type,  (u8 *)data, 0);
+
+	EFUSE_ShadowRead(adapter, type, offset, data);
 #endif
 }
 
@@ -1394,9 +1355,7 @@ u8 phydm_get_hwrate_to_mrate(struct dm_struct *dm, u8 rate)
 void phydm_set_crystalcap(struct dm_struct *dm, u8 crystal_cap)
 {
 #if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
-#if (! RTL8730A_SUPPORT)
 	ROM_odm_SetCrystalCap(dm, crystal_cap);
-#endif
 #endif
 }
 

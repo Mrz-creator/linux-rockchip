@@ -38,6 +38,7 @@ int is_any_client_associated(_adapter *padapter)
 
 static u32 go_add_group_info_attr(struct wifidirect_info *pwdinfo, u8 *pbuf)
 {
+	_irqL irqL;
 	_list	*phead, *plist;
 	u32 len = 0;
 	u16 attr_len = 0;
@@ -58,7 +59,7 @@ static u32 go_add_group_info_attr(struct wifidirect_info *pwdinfo, u8 *pbuf)
 	pstart = pdata_attr;
 	pcur = pdata_attr;
 
-	rtw_stapriv_asoc_list_lock(pstapriv);
+	_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 	phead = &pstapriv->asoc_list;
 	plist = get_next(phead);
 
@@ -125,7 +126,7 @@ static u32 go_add_group_info_attr(struct wifidirect_info *pwdinfo, u8 *pbuf)
 
 
 	}
-	rtw_stapriv_asoc_list_unlock(pstapriv);
+	_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 
 	if (attr_len > 0)
 		len = rtw_set_p2p_attr_content(pbuf, P2P_ATTR_GROUP_INFO, attr_len, pdata_attr);
@@ -2389,9 +2390,10 @@ u32 process_p2p_devdisc_req(struct wifidirect_info *pwdinfo, u8 *pframe, uint le
 			    _rtw_memcmp(pwdinfo->p2p_group_ssid, groupid + ETH_ALEN, pwdinfo->p2p_group_ssid_len)) {
 				attr_contentlen = sizeof(dev_addr);
 				if (rtw_get_p2p_attr_content(p2p_ie, p2p_ielen, P2P_ATTR_DEVICE_ID, dev_addr, &attr_contentlen)) {
+					_irqL irqL;
 					_list	*phead, *plist;
 
-					rtw_stapriv_asoc_list_lock(pstapriv);
+					_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 					phead = &pstapriv->asoc_list;
 					plist = get_next(phead);
 
@@ -2404,10 +2406,10 @@ u32 process_p2p_devdisc_req(struct wifidirect_info *pwdinfo, u8 *pframe, uint le
 						if (psta->is_p2p_device && (psta->dev_cap & P2P_DEVCAP_CLIENT_DISCOVERABILITY) &&
 						    _rtw_memcmp(psta->dev_addr, dev_addr, ETH_ALEN)) {
 
-							/* rtw_stapriv_asoc_list_unlock(pstapriv); */
+							/* _exit_critical_bh(&pstapriv->asoc_list_lock, &irqL); */
 							/* issue GO Discoverability Request */
 							issue_group_disc_req(pwdinfo, psta->cmn.mac_addr);
-							/* rtw_stapriv_asoc_list_lock(pstapriv); */
+							/* _enter_critical_bh(&pstapriv->asoc_list_lock, &irqL); */
 
 							status = P2P_STATUS_SUCCESS;
 
@@ -2416,7 +2418,7 @@ u32 process_p2p_devdisc_req(struct wifidirect_info *pwdinfo, u8 *pframe, uint le
 							status = P2P_STATUS_FAIL_INFO_UNAVAILABLE;
 
 					}
-					rtw_stapriv_asoc_list_unlock(pstapriv);
+					_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 
 				} else
 					status = P2P_STATUS_FAIL_INVALID_PARAM;

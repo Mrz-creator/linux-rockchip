@@ -547,7 +547,6 @@ thread_return rtw_cmd_thread(thread_context context)
 	while (1) {
 		if (_rtw_down_sema(&pcmdpriv->cmd_queue_sema) == _FAIL) {
 			RTW_PRINT(FUNC_ADPT_FMT" _rtw_down_sema(&pcmdpriv->cmd_queue_sema) return _FAIL, break\n", FUNC_ADPT_ARG(padapter));
-			flush_signals_thread();
 			break;
 		}
 
