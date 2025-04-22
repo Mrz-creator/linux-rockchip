@@ -79,7 +79,7 @@
 	};
 
 	cam_ircut0: cam_ircut {
-		status = "okay";
+		status = "disabled";
 		compatible = "rockchip,ircut";
 		ircut-open-gpios = <&gpio2 RK_PA7 GPIO_ACTIVE_HIGH>;
 		ircut-close-gpios  = <&gpio2 RK_PA6 GPIO_ACTIVE_HIGH>;
@@ -109,6 +109,14 @@
 		simple-audio-card,format = "i2s";
 		simple-audio-card,name = "rockchip,rk809-codec";
 		simple-audio-card,mclk-fs = <256>;
+		simple-audio-card,widgets =
+			"Microphone", "Mic Jack",
+			"Headphone", "Headphone Jack";
+		simple-audio-card,routing =
+			"Mic Jack", "MICBIAS1",
+			"IN1P", "Mic Jack",
+			"Headphone Jack", "HPOL",
+			"Headphone Jack", "HPOR";
 		simple-audio-card,cpu {
 			sound-dai = <&i2s0_8ch>;
 		};
@@ -176,13 +184,14 @@
 		status = "okay";
 	};
 
-	wireless-bluetooth {
+	wireless_ble: wireless-bluetooth {
 		compatible = "bluetooth-platdata";
 		uart_rts_gpios = <&gpio1 RK_PC0 GPIO_ACTIVE_LOW>;
 		pinctrl-names = "default", "rts_gpio";
 		pinctrl-0 = <&uart0_rtsn>;
 		pinctrl-1 = <&uart0_rtsn_gpio>;
-		BT,power_gpio    = <&gpio0 RK_PC6 GPIO_ACTIVE_HIGH>;
+		BT,power_gpio    = <&gpio0 RK_PA7 GPIO_ACTIVE_HIGH>;
+		BT,wake_host_irq = <&gpio0 RK_PA5 GPIO_ACTIVE_HIGH>;
 		status = "okay";
 	};
 
@@ -1227,7 +1236,7 @@
 };
 
 &rng {
-	status = "disable";
+	status = "okay";
 };
 
 &rockchip_suspend {
